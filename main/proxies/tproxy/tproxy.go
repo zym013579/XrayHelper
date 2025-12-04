@@ -253,8 +253,14 @@ func createProxyChain(ipv6 bool) error {
 		if err := currentIpt.Insert("mangle", "PROXY", 1, "-p", "udp", "-m", "owner", "!", "--gid-owner", common.CoreGid, "--dport", "53", "-j", "MARK", "--set-xmark", common.TproxyMarkId); err != nil {
 			return e.New("mark all dns request on "+currentProto+" udp mangle chain PROXY failed, ", err).WithPrefix(tagTproxy)
 		}
+		if err := currentIpt.Insert("mangle", "PROXY", 1, "-p", "tcp", "-m", "owner", "!", "--gid-owner", common.CoreGid, "--dport", "53", "-j", "MARK", "--set-xmark", common.TproxyMarkId); err != nil {
+			return e.New("mark all dns request on "+currentProto+" udp mangle chain PROXY failed, ", err).WithPrefix(tagTproxy)
+		}
 	} else {
 		if err := currentIpt.Insert("mangle", "PROXY", 1, "-p", "udp", "--dport", "53", "-j", "RETURN"); err != nil {
+			return e.New("bypass all dns request on "+currentProto+" udp mangle chain PROXY failed, ", err).WithPrefix(tagTproxy)
+		}
+		if err := currentIpt.Insert("mangle", "PROXY", 1, "-p", "tcp", "--dport", "53", "-j", "RETURN"); err != nil {
 			return e.New("bypass all dns request on "+currentProto+" udp mangle chain PROXY failed, ", err).WithPrefix(tagTproxy)
 		}
 	}
@@ -336,8 +342,14 @@ func createMangleChain(ipv6 bool) error {
 		if err := currentIpt.Insert("mangle", "XRAY", 1, "-p", "udp", "--dport", "53", "-j", "TPROXY", "--on-port", builds.Config.Proxy.TproxyPort, "--tproxy-mark", common.TproxyMarkId); err != nil {
 			return e.New("mark all dns request on "+currentProto+" udp mangle chain XRAY failed, ", err).WithPrefix(tagTproxy)
 		}
+		if err := currentIpt.Insert("mangle", "XRAY", 1, "-p", "tcp", "--dport", "53", "-j", "TPROXY", "--on-port", builds.Config.Proxy.TproxyPort, "--tproxy-mark", common.TproxyMarkId); err != nil {
+			return e.New("mark all dns request on "+currentProto+" udp mangle chain XRAY failed, ", err).WithPrefix(tagTproxy)
+		}
 	} else {
 		if err := currentIpt.Insert("mangle", "XRAY", 1, "-p", "udp", "--dport", "53", "-j", "RETURN"); err != nil {
+			return e.New("bypass all dns request on "+currentProto+" udp mangle chain XRAY failed, ", err).WithPrefix(tagTproxy)
+		}
+		if err := currentIpt.Insert("mangle", "XRAY", 1, "-p", "tcp", "--dport", "53", "-j", "RETURN"); err != nil {
 			return e.New("bypass all dns request on "+currentProto+" udp mangle chain XRAY failed, ", err).WithPrefix(tagTproxy)
 		}
 	}
