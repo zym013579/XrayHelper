@@ -56,12 +56,12 @@ func (this *Tproxy) Enable() error {
 			}
 		}
 	default:
-		//if !builds.Config.Proxy.EnableIPv6 {
+		if !builds.Config.Proxy.EnableIPv6 {
 			if err := tools.DisableIPV6DNS(); err != nil {
 				this.Disable()
 				return err
 			}
-		//}
+		}
 	}
 	return nil
 }
