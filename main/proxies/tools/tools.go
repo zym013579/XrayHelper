@@ -66,8 +66,16 @@ func DisableIPV6DNS() error {
 	return nil
 }
 
+func DisableIPV6DNSfe80() error {
+	if err := common.Ipt6.Insert("filter", "OUTPUT", 1, "-p", "udp", "--dport", "53", "-d", "fe80::/10", "-j", "REJECT"); err != nil {
+		return e.New("disable dns request on ipv6 fe80 failed, ", err).WithPrefix(tagTools)
+	}
+	return nil
+}
+
 func EnableIPV6DNS() {
 	_ = common.Ipt6.Delete("filter", "OUTPUT", "-p", "udp", "--dport", "53", "-j", "REJECT")
+	_ = common.Ipt6.Delete("filter", "OUTPUT", "-p", "udp", "--dport", "53", "-d", "fe80::/10", "-j", "REJECT")
 }
 
 func RedirectDNS(port string) error {
