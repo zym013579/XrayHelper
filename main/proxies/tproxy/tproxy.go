@@ -61,6 +61,11 @@ func (this *Tproxy) Enable() error {
 				this.Disable()
 				return err
 			}
+		} else {
+			if err := tools.DisableIPV6DNSfe80(); err != nil {
+				this.Disable()
+				return err
+			}
 		}
 	}
 	return nil
